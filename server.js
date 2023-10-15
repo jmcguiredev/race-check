@@ -4,10 +4,10 @@ const emailjs = require('@emailjs/nodejs');
 
 const availableRaceURL = 'https://runsignup.com/Race/Register/?raceId=81266'; // available race for testing
 const unavailableRaceURL = 'https://runsignup.com/Race/Register/?raceId=26806'; // desired race for signup
-const activeRaceURL = availableRaceURL; 
+const activeRaceURL = unavailableRaceURL; 
 let isEmailSent = false;
 
-const minutesTilRefresh = 0.1;
+const minutesTilRefresh = 30;
 const interval = minutesTilRefresh * 60 * 1000;
 
 const templateParams = {
@@ -16,7 +16,7 @@ const templateParams = {
 
 const keyParams = {
     publicKey: 'e938RbWJDbxUezdP6',
-    privateKey: 'Q1B-u8mbKW1XLTzsKfXKb'
+    privateKey: ''
 }
 
 async function run() {
@@ -41,13 +41,16 @@ while(true) {
 
         if (isSignupAvailable) {
             log("SIGNUP IS AVAILABLE");
-            // emailjs.send("race_check", "template_8c2wuzk", templateParams, keyParams).then((res) => {
-            //     log(res.status + ' ' + res.text);
-            //     isEmailSent = true;
-            // }).catch((err) => {
-            //     log(err.text)
-            //     isEmailSent = false;
-            // })
+            if (!isEmailSent) {
+                emailjs.send("race_check", "template_8c2wuzk", templateParams, keyParams).then((res) => {
+                    log(res.status + ' ' + res.text);
+                    isEmailSent = true;
+                }).catch((err) => {
+                    log(err.text)
+                    isEmailSent = false;
+                })
+            }
+           
         } else {
             log("SIGNUP NOT AVAILABLE");
         }        
@@ -55,7 +58,7 @@ while(true) {
     } catch (err) {
         log(err);
     }
-    break;
+
     await sleep(interval);
 }
 
